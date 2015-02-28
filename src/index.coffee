@@ -34,6 +34,8 @@ module.exports = (opt = {}) ->
 								return 'url(' + tmp.join('.') + ')'
 							else
 								return "url(#{fileName}?v=#{md5})"
+						else
+							return full
 					catch e
 						return full
 		else
