@@ -8,6 +8,7 @@ module.exports = (opt = {}) ->
 	through.obj (file, enc, next) ->
 		return @emit 'error', new gutil.PluginError('gulp-digest-versioning', 'File can\'t be null') if file.isNull()
 		return @emit 'error', new gutil.PluginError('gulp-digest-versioning', 'Streams not supported') if file.isStream()
+		digestLength = Math.max(parseInt(opt.digestLength) || 8, 8)
 		content = file.contents.toString()
 		if path.extname(file.path) is '.css'
 			content = content.replace /url\(\s*([^)]+)\s*\)/mg, (full, fileName) ->
@@ -28,6 +29,7 @@ module.exports = (opt = {}) ->
 							md5 = crypto.createHash('md5')
 								.update(fs.readFileSync(filePath))
 								.digest('hex')
+							md5 = md5.substr 0, digestLength
 							if opt.appendToFileName
 								tmp = full.split('.')
 								tmp.splice(-1, 0, md5)
@@ -57,6 +59,7 @@ module.exports = (opt = {}) ->
 							md5 = crypto.createHash('md5')
 								.update(fs.readFileSync(filePath))
 								.digest('hex')
+							md5 = md5.substr 0, digestLength
 							if opt.appendToFileName
 								tmp = full.split('.')
 								tmp.splice(-1, 0, md5)
