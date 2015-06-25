@@ -10,62 +10,76 @@ module.exports = (opt = {}) ->
 		return @emit 'error', new gutil.PluginError('gulp-digest-versioning', 'Streams not supported') if file.isStream()
 		digestLength = Math.max(parseInt(opt.digestLength) || 8, 8)
 		content = file.contents.toString()
-		if path.extname(file.path) is '.css'
-			content = content.replace /url\(\s*([^)]+)\s*\)/mg, (full, fileName) ->
-				fileName = fileName.replace /['"]/g, ''
-				fileName = fileName.replace /(#|\?).*$/, ''
-				if (/^(https?:|\/\/)/).test fileName
-					return full
-				else
-					if (/^\//).test fileName
-						if opt.basePath
-							filePath = opt.basePath + fileName
-						else
-							return full
+		content = content.replace /url\(\s*([^)]+)\s*\)/mg, (full, fileName) ->
+			fileName = fileName.replace /['"]/g, ''
+			if (/^(https?:|\/\/)/).test fileName
+				return full
+			else
+				if (/^\//).test fileName
+					if opt.basePath
+						filePath = opt.basePath + fileName
 					else
-						filePath = path.resolve path.dirname(file.path), fileName
-					try
-						if fs.existsSync filePath
-							md5 = crypto.createHash('md5')
-								.update(fs.readFileSync(filePath))
-								.digest('hex')
-							md5 = md5.substr 0, digestLength
-							if opt.appendToFileName
-								tmp = full.split('.')
-								tmp.splice(-1, 0, md5)
-								return 'url(' + tmp.join('.') + ')'
-							else
-								return "url(#{fileName}?v=#{md5})"
-						else
-							return full
-					catch e
 						return full
-		else
-			extnames = opt.extnames or ['css', 'js']
-			content = content.replace new RegExp('(?:href|src)="([^"]+)\\.(' + extnames.join('|') + ')"', 'mg'), (full, fileName, extName) ->
-				fileName = fileName + '.' + extName
+				else
+					filePath = path.resolve path.dirname(file.path), fileName
+				filePath = filePath.split('?')[0]
+				try
+					if fs.existsSync filePath
+						md5 = crypto.createHash('md5')
+							.update(fs.readFileSync(filePath))
+							.digest('hex')
+						md5 = md5.substr 0, digestLength
+						fileName = fileName.split '?'
+						if opt.appendToFileName
+							tmp = fileName[0].split('.')
+							rep = tmp[tmp.length - 2] + (if typeof opt.appendToFileName is 'string' then opt.appendToFileName else '.') + md5
+							tmp.splice(-2, 1, rep)
+							fileName[0] = tmp.join('.')
+						else
+							if fileName[1]
+								fileName[1] = fileName[1] + '&v=' + md5
+							else
+								fileName[1] = 'v=' + md5
+						fileName = fileName.join '?'
+						return "url(#{fileName})"
+					else
+						return full
+				catch e
+					return full
+		if path.extname(file.path) isnt '.css'
+			extnames = opt.extnames or ['css', 'js', 'jpg', 'png', 'gif']
+			content = content.replace new RegExp('\\s(href|src)="([^"]+\\.(?:' + extnames.join('|') + ')(?:\\?[^"]*)?)"', 'mg'), (full, attrName, fileName) ->
 				if (/^(https?:|\/\/)/).test fileName
 					return full
 				else
-					if opt.getFilePath and (filePath = opt.getFilePath fileName, file.path)
+					if opt.getFilePath
+						filePath = opt.getFilePath fileName, file.path
 					else
 						basePath = opt.basePath or path.dirname(file.path)
 						if (/^\//).test fileName
 							filePath = basePath + fileName
 						else
 							filePath = path.resolve basePath, fileName
+					filePath = filePath.split('?')[0]
 					try
 						if fs.existsSync filePath
 							md5 = crypto.createHash('md5')
 								.update(fs.readFileSync(filePath))
 								.digest('hex')
 							md5 = md5.substr 0, digestLength
+							fileName = fileName.split '?'
 							if opt.appendToFileName
-								tmp = full.split('.')
-								tmp.splice(-1, 0, md5)
-								return tmp.join('.')
+								tmp = fileName[0].split('.')
+								rep = tmp[tmp.length - 2] + (if typeof opt.appendToFileName is 'string' then opt.appendToFileName else '.') + md5
+								tmp.splice(-2, 1, rep)
+								fileName[0] = tmp.join('.')
 							else
-								return full.slice(0, -1) + '?v=' + md5 + '"'
+								if fileName[1]
+									fileName[1] = fileName[1] + '&v=' + md5
+								else
+									fileName[1] = 'v=' + md5
+							fileName = fileName.join '?'
+							return " #{attrName}=\"#{fileName}\""
 						else
 							return full
 					catch e
