@@ -15,13 +15,16 @@ module.exports = (opt = {}) ->
 			if (/^(https?:|\/\/)/).test fileName
 				return full
 			else
-				if (/^\//).test fileName
-					if opt.basePath
-						filePath = opt.basePath + fileName
-					else
-						return full
+				if opt.getFilePath
+					filePath = opt.getFilePath fileName, file.path
 				else
-					filePath = path.resolve path.dirname(file.path), fileName
+					if (/^\//).test fileName
+						if opt.basePath
+							filePath = opt.basePath + fileName
+						else
+							return full
+					else
+						filePath = path.resolve path.dirname(file.path), fileName
 				filePath = filePath.split('?')[0]
 				try
 					if fs.existsSync filePath
