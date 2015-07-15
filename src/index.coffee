@@ -51,7 +51,7 @@ module.exports = (opt = {}) ->
 					return full
 		if path.extname(file.path) isnt '.css'
 			extnames = opt.extnames or ['css', 'js', 'jpg', 'png', 'gif']
-			content = content.replace new RegExp('\\s(href|src)="([^"]+\\.(?:' + extnames.join('|') + ')(?:\\?[^"]*)?)"', 'mg'), (full, attrName, fileName) ->
+			content = content.replace new RegExp('(\\s|-)(href|src)="([^"]+\\.(?:' + extnames.join('|') + ')(?:\\?[^"]*)?[^"]*)"', 'mg'), (full, prefix, attrName, fileName) ->
 				if (/^(https?:|\/\/)/).test fileName
 					return full
 				else
@@ -82,7 +82,7 @@ module.exports = (opt = {}) ->
 								else
 									fileName[1] = 'v=' + md5
 							fileName = fileName.join '?'
-							return " #{attrName}=\"#{fileName}\""
+							return "#{prefix}#{attrName}=\"#{fileName}\""
 						else
 							return full
 					catch e
