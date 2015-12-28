@@ -3,11 +3,14 @@ path = require 'path'
 crypto = require 'crypto'
 gutil = require 'gulp-util'
 through = require 'through2'
+cp = require 'cp'
 
 module.exports = (opt = {}) ->
 	through.obj (file, enc, next) ->
 		return @emit 'error', new gutil.PluginError('gulp-digest-versioning', 'File can\'t be null') if file.isNull()
 		return @emit 'error', new gutil.PluginError('gulp-digest-versioning', 'Streams not supported') if file.isStream()
+		basePath = path.resolve process.cwd(), opt.basePath if opt.basePath
+		destPath = path.resolve process.cwd(), opt.destPath if opt.destPath
 		digestLength = Math.max(parseInt(opt.digestLength) || 8, 8)
 		content = file.contents.toString()
 		content = content.replace /url\(\s*([^)]+)\s*\)/mg, (full, fileName) ->
@@ -16,11 +19,11 @@ module.exports = (opt = {}) ->
 				return full
 			else
 				if opt.getFilePath
-					filePath = opt.getFilePath fileName, file.path
+					filePath = opt.getFilePath fileName, file.path, basePath
 				else
 					if (/^\//).test fileName
-						if opt.basePath
-							filePath = opt.basePath + fileName
+						if basePath
+							filePath = basePath + fileName
 						else
 							return full
 					else
@@ -34,16 +37,26 @@ module.exports = (opt = {}) ->
 						md5 = md5.substr 0, digestLength
 						fileName = fileName.split '?'
 						if opt.appendToFileName
-							tmp = fileName[0].split('.')
-							rep = tmp[tmp.length - 2] + (if typeof opt.appendToFileName is 'string' then opt.appendToFileName else '.') + md5
-							tmp.splice(-2, 1, rep)
-							fileName[0] = tmp.join('.')
+							if fileName[0].indexOf md5 is -1
+								tmp = fileName[0].split('.')
+								rep = tmp[tmp.length - 2] + (if typeof opt.appendToFileName is 'string' then opt.appendToFileName else '.') + md5
+								tmp.splice(-2, 1, rep)
+								fileName[0] = tmp.join('.')
+								if basePath and destPath
+									cpPath = path.resolve destPath, path.relative(basePath, filePath)
+									cpPath = path.resolve path.dirname(cpPath), path.basename(fileName[0])
+									if basePath is destPath
+										fs.renameSync filePath, cpPath
+									else
+										cp.sync filePath, cpPath
 						else
 							if fileName[1]
 								fileName[1] = fileName[1] + '&v=' + md5
 							else
 								fileName[1] = 'v=' + md5
 						fileName = fileName.join '?'
+						if opt.fixUrl
+							fileName = opt.fixUrl fileName, file.path, basePath
 						return "url(#{fileName})"
 					else
 						return full
@@ -56,13 +69,15 @@ module.exports = (opt = {}) ->
 					return full
 				else
 					if opt.getFilePath
-						filePath = opt.getFilePath fileName, file.path
+						filePath = opt.getFilePath fileName, file.path, basePath
 					else
-						basePath = opt.basePath or path.dirname(file.path)
 						if (/^\//).test fileName
-							filePath = basePath + fileName
+							if basePath
+								filePath = basePath + fileName
+							else
+								return full
 						else
-							filePath = path.resolve basePath, fileName
+							filePath = path.resolve path.dirname(file.path), fileName
 					filePath = filePath.split('?')[0]
 					try
 						if fs.existsSync filePath
@@ -72,16 +87,26 @@ module.exports = (opt = {}) ->
 							md5 = md5.substr 0, digestLength
 							fileName = fileName.split '?'
 							if opt.appendToFileName
-								tmp = fileName[0].split('.')
-								rep = tmp[tmp.length - 2] + (if typeof opt.appendToFileName is 'string' then opt.appendToFileName else '.') + md5
-								tmp.splice(-2, 1, rep)
-								fileName[0] = tmp.join('.')
+								if fileName[0].indexOf md5 is -1
+									tmp = fileName[0].split('.')
+									rep = tmp[tmp.length - 2] + (if typeof opt.appendToFileName is 'string' then opt.appendToFileName else '.') + md5
+									tmp.splice(-2, 1, rep)
+									fileName[0] = tmp.join('.')
+									if basePath and destPath
+										cpPath = path.resolve destPath, path.relative(basePath, filePath)
+										cpPath = path.resolve path.dirname(cpPath), path.basename(fileName[0])
+										if basePath is destPath
+											fs.renameSync filePath, cpPath
+										else
+											cp.sync filePath, cpPath
 							else
 								if fileName[1]
 									fileName[1] = fileName[1] + '&v=' + md5
 								else
 									fileName[1] = 'v=' + md5
 							fileName = fileName.join '?'
+							if opt.fixUrl
+								fileName = opt.fixUrl fileName, file.path, basePath
 							return "#{prefix}#{attrName}=\"#{fileName}\""
 						else
 							return full

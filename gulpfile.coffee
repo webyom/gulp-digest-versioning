@@ -6,4 +6,38 @@ gulp.task 'compile', ->
 		.pipe coffee()
 		.pipe gulp.dest('lib')
 
+gulp.task 'copy', ->
+	gulp.src(['example/src/**/*'])
+		.pipe gulp.dest('example/dest')
+
+gulp.task 'example-html', ['copy'], ->
+	digestVersioning = require './lib/index'
+	gulp.src(['example/dest/*.html'])
+		.pipe digestVersioning
+			digestLength: 8,
+			appendToFileName: true
+			basePath: 'example/dest'
+			destPath: 'example/dest'
+			fixUrl: (fileName, relPath, basePath) ->
+				if !(/^\//).test fileName
+					filePath = path.resolve path.dirname(relPath), fileName
+					fileName = '/' + path.relative(basePath, filePath)
+				'http://webyom.org' + fileName
+		.pipe gulp.dest('example/dest')
+
+gulp.task 'example', ['example-html'], ->
+	digestVersioning = require './lib/index'
+	gulp.src(['example/dest/*.css'])
+		.pipe digestVersioning
+			digestLength: 8,
+			appendToFileName: true
+			basePath: 'example/dest'
+			destPath: 'example/dest'
+			fixUrl: (fileName, relPath, basePath) ->
+				if !(/^\//).test fileName
+					filePath = path.resolve path.dirname(relPath), fileName
+					fileName = '/' + path.relative(basePath, filePath)
+				'http://webyom.org' + fileName
+		.pipe gulp.dest('example/dest')
+
 gulp.task 'default', ['compile']

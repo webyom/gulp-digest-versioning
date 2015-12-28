@@ -1,10 +1,10 @@
 {
   "name": "gulp-digest-versioning",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Property merge",
   "keywords": [
-    "html",
-    "minifier",
+    "digest",
+    "versioning",
     "gulpplugin"
   ],
   "homepage": "https://github.com/webyom/gulp-digest-versioning",
@@ -30,9 +30,9 @@
   "engines": {
     "node": ">= 0.8.0"
   },
-  "scripts": {
-  },
+  "scripts": {},
   "dependencies": {
+    "cp": "^0.2.0",
     "gulp-util": "^2.2.19",
     "through2": "^0.5.1"
   },
