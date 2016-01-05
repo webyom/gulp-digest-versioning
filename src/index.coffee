@@ -63,7 +63,7 @@ module.exports = (opt = {}) ->
 				catch e
 					return full
 		if path.extname(file.path) isnt '.css'
-			extnames = opt.extnames or ['css', 'js', 'jpg', 'png', 'gif']
+			extnames = opt.extnames or ['css', 'js', 'jpg', 'jpeg', 'png', 'gif', 'ico']
 			content = content.replace new RegExp('(\\s|-)(href|src)="([^"]+\\.(?:' + extnames.join('|') + ')(?:\\?[^"]*)?[^"]*)"', 'mg'), (full, prefix, attrName, fileName) ->
 				if (/^(https?:|\/\/)/).test fileName
 					return full
