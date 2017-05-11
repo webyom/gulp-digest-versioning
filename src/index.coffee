@@ -11,7 +11,7 @@ module.exports = (opt = {}) ->
 		return @emit 'error', new gutil.PluginError('gulp-digest-versioning', 'Streams not supported') if file.isStream()
 		basePath = path.resolve process.cwd(), opt.basePath if opt.basePath
 		destPath = path.resolve process.cwd(), opt.destPath if opt.destPath
-		digestLength = Math.max(parseInt(opt.digestLength) || 8, 8)
+		digestLength = Math.max(parseInt(opt.digestLength) || 4, 4)
 		content = file.contents.toString()
 		content = content.replace /url\(\s*([^)]+)\s*\)/mg, (full, fileName) ->
 			fileName = fileName.replace /['"]/g, ''

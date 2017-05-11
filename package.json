@@ -1,7 +1,7 @@
 {
   "name": "gulp-digest-versioning",
-  "version": "0.1.8",
-  "description": "Property merge",
+  "version": "0.1.9",
+  "description": "gulp-digest-versioning",
   "keywords": [
     "digest",
     "versioning",
