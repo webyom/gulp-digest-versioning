@@ -1,14 +1,14 @@
 fs = require 'fs'
 path = require 'path'
 crypto = require 'crypto'
-gutil = require 'gulp-util'
+PluginError = require 'plugin-error'
 through = require 'through2'
 cp = require 'cp'
 
 module.exports = (opt = {}) ->
 	through.obj (file, enc, next) ->
-		return @emit 'error', new gutil.PluginError('gulp-digest-versioning', 'File can\'t be null') if file.isNull()
-		return @emit 'error', new gutil.PluginError('gulp-digest-versioning', 'Streams not supported') if file.isStream()
+		return @emit 'error', new PluginError('gulp-digest-versioning', 'File can\'t be null') if file.isNull()
+		return @emit 'error', new PluginError('gulp-digest-versioning', 'Streams not supported') if file.isStream()
 		basePath = path.resolve process.cwd(), opt.basePath if opt.basePath
 		destPath = path.resolve process.cwd(), opt.destPath if opt.destPath
 		digestLength = Math.max(parseInt(opt.digestLength) || 4, 4)

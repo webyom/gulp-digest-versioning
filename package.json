@@ -1,6 +1,6 @@
 {
   "name": "gulp-digest-versioning",
-  "version": "0.1.9",
+  "version": "0.2.0",
   "description": "gulp-digest-versioning",
   "keywords": [
     "digest",
@@ -33,7 +33,7 @@
   "scripts": {},
   "dependencies": {
     "cp": "^0.2.0",
-    "gulp-util": "^2.2.19",
+    "plugin-error": "^1.0.0",
     "through2": "^0.5.1"
   },
   "devDependencies": {
