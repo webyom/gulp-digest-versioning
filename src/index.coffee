@@ -45,10 +45,7 @@ module.exports = (opt = {}) ->
 								if basePath and destPath
 									cpPath = path.resolve destPath, path.relative(basePath, filePath)
 									cpPath = path.resolve path.dirname(cpPath), path.basename(fileName[0])
-									if basePath is destPath
-										fs.renameSync filePath, cpPath
-									else
-										cp.sync filePath, cpPath
+									cp.sync filePath, cpPath
 						else
 							if fileName[1]
 								fileName[1] = fileName[1] + '&v=' + md5
@@ -95,10 +92,7 @@ module.exports = (opt = {}) ->
 									if basePath and destPath
 										cpPath = path.resolve destPath, path.relative(basePath, filePath)
 										cpPath = path.resolve path.dirname(cpPath), path.basename(fileName[0])
-										if basePath is destPath
-											fs.renameSync filePath, cpPath
-										else
-											cp.sync filePath, cpPath
+										cp.sync filePath, cpPath
 							else
 								if fileName[1]
 									fileName[1] = fileName[1] + '&v=' + md5
@@ -112,6 +106,6 @@ module.exports = (opt = {}) ->
 							return full
 					catch e
 						return full
-		file.contents = new Buffer content
+		file.contents = Buffer.from content
 		@push file
 		next()

@@ -6,17 +6,13 @@ gulp.task 'compile', ->
 		.pipe coffee()
 		.pipe gulp.dest('lib')
 
-gulp.task 'copy', ->
-	gulp.src(['example/src/**/*'])
-		.pipe gulp.dest('example/dest')
-
-gulp.task 'example-html', ['copy'], ->
+gulp.task 'example-html', ->
 	digestVersioning = require './lib/index'
 	gulp.src(['example/dest/*.html'])
 		.pipe digestVersioning
 			digestLength: 8,
 			appendToFileName: true
-			basePath: 'example/dest'
+			basePath: 'example/src'
 			destPath: 'example/dest'
 			fixUrl: (fileName, relPath, basePath) ->
 				if !(/^\//).test fileName
@@ -31,7 +27,7 @@ gulp.task 'example', ['example-html'], ->
 		.pipe digestVersioning
 			digestLength: 8,
 			appendToFileName: true
-			basePath: 'example/dest'
+			basePath: 'example/src'
 			destPath: 'example/dest'
 			fixUrl: (fileName, relPath, basePath) ->
 				if !(/^\//).test fileName
