@@ -5,6 +5,8 @@ PluginError = require 'plugin-error'
 through = require 'through2'
 cp = require 'cp'
 
+renamedFileMap = {}
+
 module.exports = (opt = {}) ->
 	through.obj (file, enc, next) ->
 		return @emit 'error', new PluginError('gulp-digest-versioning', 'File can\'t be null') if file.isNull()
@@ -46,6 +48,7 @@ module.exports = (opt = {}) ->
 									cpPath = path.resolve destPath, path.relative(basePath, filePath)
 									cpPath = path.resolve path.dirname(cpPath), path.basename(fileName[0])
 									cp.sync filePath, cpPath
+									renamedFileMap[filePath] = 1
 						else
 							if fileName[1]
 								fileName[1] = fileName[1] + '&v=' + md5
@@ -93,6 +96,7 @@ module.exports = (opt = {}) ->
 										cpPath = path.resolve destPath, path.relative(basePath, filePath)
 										cpPath = path.resolve path.dirname(cpPath), path.basename(fileName[0])
 										cp.sync filePath, cpPath
+										renamedFileMap[filePath] = 1
 							else
 								if fileName[1]
 									fileName[1] = fileName[1] + '&v=' + md5
@@ -109,3 +113,6 @@ module.exports = (opt = {}) ->
 		file.contents = Buffer.from content
 		@push file
 		next()
+
+module.exports.getRenamedFiles = () ->
+	Object.keys renamedFileMap
