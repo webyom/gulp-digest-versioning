@@ -97,6 +97,14 @@ module.exports = (opt = {}) ->
 										cpPath = path.resolve path.dirname(cpPath), path.basename(fileName[0])
 										cp.sync filePath, cpPath
 										renamedFileMap[filePath] = 1
+										if path.extname(filePath) is '.js' and fs.existsSync(filePath + '.map')
+											try
+												sourceMap = JSON.parse fs.readFileSync(filePath + '.map').toString()
+											catch e
+											if sourceMap
+												if sourceMap.file
+													sourceMap.file = path.basename filePath
+												fs.writeFileSync cpPath + '.map', JSON.stringify sourceMap
 							else
 								if fileName[1]
 									fileName[1] = fileName[1] + '&v=' + md5
