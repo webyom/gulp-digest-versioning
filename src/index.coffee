@@ -19,6 +19,10 @@ module.exports = (opt = {}) ->
 			fileName = fileName.replace /['"]/g, ''
 			if (/^(https?:|\/\/)/).test fileName
 				return full
+			else if opt.skipFileName and opt.skipFileName fileName
+				if opt.fixUrl
+					fileName = opt.fixUrl fileName, file.path, basePath
+				return "url(#{fileName})"
 			else
 				if opt.getFilePath
 					filePath = opt.getFilePath fileName, file.path, basePath
@@ -67,6 +71,10 @@ module.exports = (opt = {}) ->
 			content = content.replace new RegExp('(\'|")([^\'"]+?\\.(?:' + extnames.join('|') + ')(?:\\?[^\'"]*?)?)\\1', 'mg'), (full, quote, fileName) ->
 				if (/^(https?:|\/\/)/).test fileName
 					return full
+				else if opt.skipFileName and opt.skipFileName fileName
+					if opt.fixUrl
+						fileName = opt.fixUrl fileName, file.path, basePath
+					return "#{quote}#{fileName}#{quote}"
 				else
 					if opt.getFilePath
 						filePath = opt.getFilePath fileName, file.path, basePath
