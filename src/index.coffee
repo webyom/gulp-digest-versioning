@@ -11,7 +11,7 @@ module.exports = (opt = {}) ->
 	through.obj (file, enc, next) ->
 		return @emit 'error', new PluginError('gulp-digest-versioning', 'File can\'t be null') if file.isNull()
 		return @emit 'error', new PluginError('gulp-digest-versioning', 'Streams not supported') if file.isStream()
-		basePath = path.resolve process.cwd(), opt.basePath if opt.basePath
+		baseDir = path.resolve process.cwd(), opt.baseDir if opt.baseDir
 		destPath = path.resolve process.cwd(), opt.destPath if opt.destPath
 		digestLength = Math.max(parseInt(opt.digestLength) || 4, 4)
 		content = file.contents.toString()
@@ -21,15 +21,15 @@ module.exports = (opt = {}) ->
 				return full
 			else if opt.skipFileName and opt.skipFileName fileName
 				if opt.fixUrl
-					fileName = opt.fixUrl fileName, file.path, basePath
+					fileName = opt.fixUrl fileName, file.path, baseDir
 				return "url(#{fileName})"
 			else
 				if opt.getFilePath
-					filePath = opt.getFilePath fileName, file.path, basePath
+					filePath = opt.getFilePath fileName, file.path, baseDir
 				else
 					if (/^\//).test fileName
-						if basePath
-							filePath = basePath + fileName
+						if baseDir
+							filePath = baseDir + fileName
 						else
 							return full
 					else
@@ -48,8 +48,8 @@ module.exports = (opt = {}) ->
 								rep = tmp[tmp.length - 2] + (if typeof opt.appendToFileName is 'string' then opt.appendToFileName else '.') + md5
 								tmp.splice(-2, 1, rep)
 								fileName[0] = tmp.join('.')
-								if basePath and destPath
-									cpPath = path.resolve destPath, path.relative(basePath, filePath)
+								if baseDir and destPath
+									cpPath = path.resolve destPath, path.relative(baseDir, filePath)
 									cpPath = path.resolve path.dirname(cpPath), path.basename(fileName[0])
 									cp.sync filePath, cpPath
 									renamedFileMap[filePath] = 1
@@ -60,7 +60,7 @@ module.exports = (opt = {}) ->
 								fileName[1] = 'v=' + md5
 						fileName = fileName.join '?'
 						if opt.fixUrl
-							fileName = opt.fixUrl fileName, file.path, basePath
+							fileName = opt.fixUrl fileName, file.path, baseDir
 						return "url(#{fileName})"
 					else
 						return full
@@ -73,15 +73,15 @@ module.exports = (opt = {}) ->
 					return full
 				else if opt.skipFileName and opt.skipFileName fileName
 					if opt.fixUrl
-						fileName = opt.fixUrl fileName, file.path, basePath
+						fileName = opt.fixUrl fileName, file.path, baseDir
 					return "#{quote}#{fileName}#{quote}"
 				else
 					if opt.getFilePath
-						filePath = opt.getFilePath fileName, file.path, basePath
+						filePath = opt.getFilePath fileName, file.path, baseDir
 					else
 						if (/^\//).test fileName
-							if basePath
-								filePath = basePath + fileName
+							if baseDir
+								filePath = baseDir + fileName
 							else
 								return full
 						else
@@ -100,8 +100,8 @@ module.exports = (opt = {}) ->
 									rep = tmp[tmp.length - 2] + (if typeof opt.appendToFileName is 'string' then opt.appendToFileName else '.') + md5
 									tmp.splice(-2, 1, rep)
 									fileName[0] = tmp.join('.')
-									if basePath and destPath
-										cpPath = path.resolve destPath, path.relative(basePath, filePath)
+									if baseDir and destPath
+										cpPath = path.resolve destPath, path.relative(baseDir, filePath)
 										cpPath = path.resolve path.dirname(cpPath), path.basename(fileName[0])
 										cp.sync filePath, cpPath
 										renamedFileMap[filePath] = 1
@@ -120,7 +120,7 @@ module.exports = (opt = {}) ->
 									fileName[1] = 'v=' + md5
 							fileName = fileName.join '?'
 							if opt.fixUrl
-								fileName = opt.fixUrl fileName, file.path, basePath
+								fileName = opt.fixUrl fileName, file.path, baseDir
 							return "#{quote}#{fileName}#{quote}"
 						else
 							return full

@@ -12,12 +12,12 @@ gulp.task 'example-html', ->
 		.pipe digestVersioning
 			digestLength: 8,
 			appendToFileName: true
-			basePath: 'example/src'
+			baseDir: 'example/src'
 			destPath: 'example/dest'
-			fixUrl: (fileName, relPath, basePath) ->
+			fixUrl: (fileName, relPath, baseDir) ->
 				if !(/^\//).test fileName
 					filePath = path.resolve path.dirname(relPath), fileName
-					fileName = '/' + path.relative(basePath, filePath)
+					fileName = '/' + path.relative(baseDir, filePath)
 				'http://webyom.org' + fileName
 		.pipe gulp.dest('example/dest')
 
@@ -27,12 +27,12 @@ gulp.task 'example', ['example-html'], ->
 		.pipe digestVersioning
 			digestLength: 8,
 			appendToFileName: true
-			basePath: 'example/src'
+			baseDir: 'example/src'
 			destPath: 'example/dest'
-			fixUrl: (fileName, relPath, basePath) ->
+			fixUrl: (fileName, relPath, baseDir) ->
 				if !(/^\//).test fileName
 					filePath = path.resolve path.dirname(relPath), fileName
-					fileName = '/' + path.relative(basePath, filePath)
+					fileName = '/' + path.relative(baseDir, filePath)
 				'http://webyom.org' + fileName
 		.pipe gulp.dest('example/dest')
 
