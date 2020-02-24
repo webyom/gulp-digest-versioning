@@ -13,7 +13,7 @@ gulp.task 'example-html', ->
 			digestLength: 8,
 			appendToFileName: true
 			baseDir: 'example/src'
-			destPath: 'example/dest'
+			destDir: 'example/dest'
 			fixUrl: (fileName, relPath, baseDir) ->
 				if !(/^\//).test fileName
 					filePath = path.resolve path.dirname(relPath), fileName
@@ -28,7 +28,7 @@ gulp.task 'example', ['example-html'], ->
 			digestLength: 8,
 			appendToFileName: true
 			baseDir: 'example/src'
-			destPath: 'example/dest'
+			destDir: 'example/dest'
 			fixUrl: (fileName, relPath, baseDir) ->
 				if !(/^\//).test fileName
 					filePath = path.resolve path.dirname(relPath), fileName

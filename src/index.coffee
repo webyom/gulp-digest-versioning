@@ -12,7 +12,7 @@ module.exports = (opt = {}) ->
 		return @emit 'error', new PluginError('gulp-digest-versioning', 'File can\'t be null') if file.isNull()
 		return @emit 'error', new PluginError('gulp-digest-versioning', 'Streams not supported') if file.isStream()
 		baseDir = path.resolve process.cwd(), opt.baseDir if opt.baseDir
-		destPath = path.resolve process.cwd(), opt.destPath if opt.destPath
+		destDir = path.resolve process.cwd(), opt.destDir if opt.destDir
 		digestLength = Math.max(parseInt(opt.digestLength) || 4, 4)
 		content = file.contents.toString()
 		content = content.replace /url\(\s*([^)]+)\s*\)/mg, (full, fileName) ->
@@ -48,8 +48,8 @@ module.exports = (opt = {}) ->
 								rep = tmp[tmp.length - 2] + (if typeof opt.appendToFileName is 'string' then opt.appendToFileName else '.') + md5
 								tmp.splice(-2, 1, rep)
 								fileName[0] = tmp.join('.')
-								if baseDir and destPath
-									cpPath = path.resolve destPath, path.relative(baseDir, filePath)
+								if baseDir and destDir
+									cpPath = path.resolve destDir, path.relative(baseDir, filePath)
 									cpPath = path.resolve path.dirname(cpPath), path.basename(fileName[0])
 									cp.sync filePath, cpPath
 									renamedFileMap[filePath] = 1
@@ -100,8 +100,8 @@ module.exports = (opt = {}) ->
 									rep = tmp[tmp.length - 2] + (if typeof opt.appendToFileName is 'string' then opt.appendToFileName else '.') + md5
 									tmp.splice(-2, 1, rep)
 									fileName[0] = tmp.join('.')
-									if baseDir and destPath
-										cpPath = path.resolve destPath, path.relative(baseDir, filePath)
+									if baseDir and destDir
+										cpPath = path.resolve destDir, path.relative(baseDir, filePath)
 										cpPath = path.resolve path.dirname(cpPath), path.basename(fileName[0])
 										cp.sync filePath, cpPath
 										renamedFileMap[filePath] = 1
