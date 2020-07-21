@@ -103,16 +103,18 @@ module.exports = (opt = {}) ->
 									if baseDir and destDir
 										cpPath = path.resolve destDir, path.relative(baseDir, filePath)
 										cpPath = path.resolve path.dirname(cpPath), path.basename(fileName[0])
-										cp.sync filePath, cpPath
 										renamedFileMap[filePath] = 1
 										if path.extname(filePath) is '.js' and fs.existsSync(filePath + '.map')
+											fs.writeFileSync cpPath, fs.readFileSync(filePath).toString().replace(/\/\/# sourceMappingURL=.+\.map/, '//# sourceMappingURL=' + path.basename(cpPath) + '.map')
 											try
 												sourceMap = JSON.parse fs.readFileSync(filePath + '.map').toString()
 											catch e
 											if sourceMap
 												if sourceMap.file
-													sourceMap.file = path.basename filePath
+													sourceMap.file = path.basename cpPath
 												fs.writeFileSync cpPath + '.map', JSON.stringify sourceMap
+										else
+											cp.sync filePath, cpPath
 							else
 								if fileName[1]
 									fileName[1] = fileName[1] + '&v=' + md5
