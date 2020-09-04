@@ -7,6 +7,8 @@ cp = require 'cp'
 
 renamedFileMap = {}
 
+md5List = []
+
 module.exports = (opt = {}) ->
 	through.obj (file, enc, next) ->
 		return @emit 'error', new PluginError('gulp-digest-versioning', 'File can\'t be null') if file.isNull()
@@ -19,9 +21,9 @@ module.exports = (opt = {}) ->
 			fileName = fileName.replace /['"]/g, ''
 			if (/^(https?:|\/\/)/).test fileName
 				return full
-			else if opt.skipFileName and opt.skipFileName fileName
-				if opt.fixUrl
-					fileName = opt.fixUrl fileName, file.path, baseDir
+			else if opt.skipFileName and opt.skipFileName fileName, md5List
+				if opt.fixSkipUrl
+					fileName = opt.fixSkipUrl fileName, file.path, baseDir
 				return "url(#{fileName})"
 			else
 				if opt.getFilePath
@@ -41,6 +43,7 @@ module.exports = (opt = {}) ->
 							.update(fs.readFileSync(filePath))
 							.digest('hex')
 						md5 = md5.substr 0, digestLength
+						md5List.push md5
 						fileName = fileName.split '?'
 						if opt.appendToFileName
 							if fileName[0].indexOf md5 is -1
@@ -71,9 +74,9 @@ module.exports = (opt = {}) ->
 			content = content.replace new RegExp('(\'|")([^\'"]+?\\.(?:' + extnames.join('|') + ')(?:\\?[^\'"]*?)?)\\1', 'mg'), (full, quote, fileName) ->
 				if (/^(https?:|\/\/)/).test fileName
 					return full
-				else if opt.skipFileName and opt.skipFileName fileName
-					if opt.fixUrl
-						fileName = opt.fixUrl fileName, file.path, baseDir
+				else if opt.skipFileName and opt.skipFileName fileName, md5List
+					if opt.fixSkipUrl
+						fileName = opt.fixSkipUrl fileName, file.path, baseDir
 					return "#{quote}#{fileName}#{quote}"
 				else
 					if opt.getFilePath
@@ -93,6 +96,7 @@ module.exports = (opt = {}) ->
 								.update(fs.readFileSync(filePath))
 								.digest('hex')
 							md5 = md5.substr 0, digestLength
+							md5List.push md5
 							fileName = fileName.split '?'
 							if opt.appendToFileName
 								if fileName[0].indexOf md5 is -1
